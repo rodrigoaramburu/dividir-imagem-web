@@ -102,8 +102,8 @@ function data() {
             if (!this.imgUrl) return;
             const img = new Image();
             img.onload = () => {
-                const w = img.width;
-                const h = img.height;
+                const imageWidth = img.width;
+                const imageHeight = img.height;
                 let rows = this.linhas;
                 let cols = this.colunas;
                 if (this.tipo === 'vertical') {
@@ -111,8 +111,8 @@ function data() {
                 } else if (this.tipo === 'horizontal') {
                     rows = 1;
                 }
-                const pieceW = Math.floor(w / cols);
-                const pieceH = Math.floor(h / rows);
+                const pieceW = Math.floor(imageWidth / cols);
+                const pieceH = Math.floor(imageHeight / rows);
                 this.pecas = [];
                 this.selecionadas.clear();
 
@@ -128,7 +128,8 @@ function data() {
                         ctx2.drawImage(this.canvas, x, y, pieceW, pieceH, 0, 0, pieceW, pieceH);
                         const dataUrl = canvas2.toDataURL('image/png');
                         const name = `piece_${r}_${c}.png`;
-                        this.pecas.push({ url: dataUrl, name });
+                        const aspectRatio = pieceW / pieceH;
+                        this.pecas.push({ url: dataUrl, name, aspectRatio });
                         this.selecionadas.add(this.pecas.length - 1);
                     }
                 }

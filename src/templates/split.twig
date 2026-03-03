@@ -156,14 +156,21 @@
         }
         .pieces {
             display: grid;
+            grid-template-columns: repeat(var(--cols, auto-fill), minmax(100px, 1fr));
+            grid-template-rows: repeat(var(--rows, auto), auto);
             gap: 8px;
             margin-bottom: 16px;
+            max-height: 70vh;
+            overflow: auto;
         }
         .pieces.grid {
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            /* Grid layout - cols/rows set dynamically */
         }
         .pieces.horizontal {
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            /* Horizontal layout - cols/rows set dynamically */
+        }
+        .pieces.vertical {
+            grid-template-columns: 1fr;
         }
         .piece {
             cursor: pointer;
@@ -172,8 +179,9 @@
             border-radius: 6px;
             background: var(--bg);
             border: 2px solid var(--border-color);
-            aspect-ratio: 1;
+            aspect-ratio: var(--aspect-ratio, 1);
             transition: all 0.2s;
+            min-width: 60px;
         }
         .piece img {
             width: 100%;
@@ -218,6 +226,7 @@
         .btn-download {
             background: var(--accent);
             color: #fff;
+            margin-top: 16px;
         }
         .btn-download:hover {
             background: var(--accent-dark);
@@ -238,6 +247,9 @@
             }
             .pieces.grid, .pieces.horizontal {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            .pieces.vertical {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -286,20 +298,21 @@
 
     <div class="actions" x-show="imgUrl">
         <button type="button" @click="generatePreview()" class="btn-action btn-primary">Recortar</button>
-        <button type="button" @click="downloadZip()" x-show="selecionadas.size" class="btn-action btn-download">⬇ Baixar selecionados</button>
     </div>
 
     <template x-if="pecas.length">
         <div class="pieces-label">Selecione as peças para download:</div>
     </template>
 
-    <div class="pieces" :class="tipo === 'horizontal' ? 'horizontal' : 'grid'" x-show="pecas.length">
+    <div class="pieces" :class="{ vertical: tipo === 'vertical', horizontal: tipo === 'horizontal', grid: tipo === 'grade' }" x-show="pecas.length" :style="`--cols: ${colunas}; --rows: ${linhas}`">
         <template x-for="(p, idx) in pecas" :key="idx">
-            <div class="piece" @click="toggleSelect(idx)" :class="{ 'selected': selecionadas.has(idx) }" :title="p.name">
+            <div class="piece" @click="toggleSelect(idx)" :class="{ 'selected': selecionadas.has(idx) }" :title="p.name" :style="`--aspect-ratio: ${p.aspectRatio || 1}`">
                 <img :src="p.url" :alt="p.name">
             </div>
         </template>
     </div>
+
+    <button type="button" @click="downloadZip()" x-show="selecionadas.size" class="btn-action btn-download">⬇ Baixar selecionados</button>
 </div>
 
 <script type="module" src="/assets/split.js"></script>

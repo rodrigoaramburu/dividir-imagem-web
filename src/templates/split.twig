@@ -118,6 +118,8 @@
         }
         .preview-section {
             margin: 24px 0;
+            max-height: 50vh;
+            overflow: auto;
         }
         .preview {
             position: relative;
@@ -230,6 +232,10 @@
             .controls {
                 grid-template-columns: 1fr;
             }
+            .preview-section {
+                max-height: none;
+                min-height: 200px;
+            }
             .pieces.grid, .pieces.horizontal {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -278,6 +284,11 @@
         </div>
     </div>
 
+    <div class="actions" x-show="imgUrl">
+        <button type="button" @click="generatePreview()" class="btn-action btn-primary">Recortar</button>
+        <button type="button" @click="downloadZip()" x-show="selecionadas.size" class="btn-action btn-download">⬇ Baixar selecionados</button>
+    </div>
+
     <template x-if="pecas.length">
         <div class="pieces-label">Selecione as peças para download:</div>
     </template>
@@ -288,11 +299,6 @@
                 <img :src="p.url" :alt="p.name">
             </div>
         </template>
-    </div>
-
-    <div class="actions" x-show="imgUrl">
-        <button type="button" @click="generatePreview()" class="btn-action btn-primary">Gerar pré-visualização</button>
-        <button type="button" @click="downloadZip()" x-show="selecionadas.size" class="btn-action btn-download">⬇ Baixar selecionados</button>
     </div>
 </div>
 

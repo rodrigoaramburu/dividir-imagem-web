@@ -1,0 +1,105 @@
+import Alpine from 'alpinejs';
+import JSZip from 'jszip';
+
+function data() {
+    return {
+        file: null,
+        imgUrl: null,
+        tipo: 'grade',
+        linhas: 1,
+        colunas: 1,
+        pecas: [],
+        selecionadas: new Set(),
+        canvas: null,
+
+        onFileChange(event) {
+            const file = event.target.files[0] || (event.dataTransfer && event.dataTransfer.files[0]);
+            if (!file) return;
+            this.file = file;
+            const reader = new FileReader();
+            reader.onload = e => {
+                this.imgUrl = e.target.result;
+                // prepare canvas
+                if (!this.canvas) {
+                    this.canvas = document.createElement('canvas');
+                }
+                const img = new Image();
+                img.onload = () => {
+                    this.canvas.width = img.width;
+                    this.canvas.height = img.height;
+                    const ctx = this.canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = this.imgUrl;
+            };
+            reader.readAsDataURL(file);
+        },
+
+        generatePreview() {
+            if (!this.imgUrl) return;
+            const img = new Image();
+            img.onload = () => {
+                const w = img.width;
+                const h = img.height;
+                let rows = this.linhas;
+                let cols = this.colunas;
+                if (this.tipo === 'vertical') {
+                    cols = 1;
+                } else if (this.tipo === 'horizontal') {
+                    rows = 1;
+                }
+                const pieceW = Math.floor(w / cols);
+                const pieceH = Math.floor(h / rows);
+                this.pecas = [];
+                this.selecionadas.clear();
+
+                const ctx = this.canvas.getContext('2d');
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const x = c * pieceW;
+                        const y = r * pieceH;
+                        const canvas2 = document.createElement('canvas');
+                        canvas2.width = pieceW;
+                        canvas2.height = pieceH;
+                        const ctx2 = canvas2.getContext('2d');
+                        ctx2.drawImage(this.canvas, x, y, pieceW, pieceH, 0, 0, pieceW, pieceH);
+                        const dataUrl = canvas2.toDataURL('image/png');
+                        const name = `piece_${r}_${c}.png`;
+                        this.pecas.push({ url: dataUrl, name });
+                        this.selecionadas.add(this.pecas.length - 1);
+                    }
+                }
+            };
+            img.src = this.imgUrl;
+        },
+
+        toggleSelect(index) {
+            if (this.selecionadas.has(index)) {
+                this.selecionadas.delete(index);
+            } else {
+                this.selecionadas.add(index);
+            }
+        },
+
+        async downloadZip() {
+            const zip = new JSZip();
+            const indices = Array.from(this.selecionadas);
+            for (const i of indices) {
+                const piece = this.pecas[i];
+                const data = piece.url.split(',')[1];
+                zip.file(piece.name, data, { base64: true });
+            }
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'images.zip';
+            a.click();
+        }
+    };
+}
+
+window.splitComponent = data;
+Alpine.data('splitComponent', data);
+
+// initialize Alpine
+Alpine.start();

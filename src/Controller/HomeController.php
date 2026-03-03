@@ -17,6 +17,6 @@ class HomeController
 
     public function index(Request $request, Response $response, $args): Response
     {
-        return $this->view->render($response, 'home.twig', ['message' => 'Hello from Slim + Twig!']);
+        return $this->view->render($response, 'split.twig');
     }
 }

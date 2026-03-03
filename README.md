@@ -22,13 +22,14 @@ This repository provides a minimal PHP application using Slim framework, Twig te
    ```bash
    npm install
    ```
+   (this now includes `jszip` used by the image splitter)
 
 2. Start the Vite dev server (hot reload):
    ```bash
    npm run dev
    ```
 
-   Browse `http://localhost:8080` (PHP server) while Vite serves assets on another port.
+   The splitter is the main page and will be available at `http://localhost:8080`.
 
 3. For production, build assets:
    ```bash

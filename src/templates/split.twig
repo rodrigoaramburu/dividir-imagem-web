@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Divisor de Imagens</title>
+    <style>
+        .dropzone { border: 2px dashed #ccc; padding: 20px; text-align: center; cursor: pointer; }
+        .preview { max-width: 100%; margin-top: 10px; position: relative; }
+        .preview img{ width: 100%; }
+        .pieces { display: grid; gap: 10px; margin-top: 10px; }
+        .pieces img { max-width: 150px; border: 1px solid #999; }
+        .selected { outline: 3px solid #2196F3; }
+    </style>
+</head>
+<body x-data="splitComponent()" @dragover.prevent @drop.prevent="onFileChange($event)">
+    <h1>Divisor de Imagens</h1>
+
+    <div class="dropzone" @click="$refs.fileInput.click()">
+        Arraste a imagem aqui ou <button type="button">Selecione um arquivo</button>
+        <input type="file" accept="image/*" class="hidden" x-ref="fileInput" @change="onFileChange" style="display:none;">
+    </div>
+
+    <div class="controls" x-show="imgUrl">
+        <label>Tipo:
+            <select x-model="tipo">
+                <option value="grade">Grade</option>
+                <option value="vertical">Vertical</option>
+                <option value="horizontal">Horizontal</option>
+            </select>
+        </label>
+        <label>Linhas:
+            <input type="number" min="1" x-model.number="linhas">
+        </label>
+        <label>Colunas:
+            <input type="number" min="1" x-model.number="colunas">
+        </label>
+        <button type="button" @click="generatePreview()">Gerar pré-visualização</button>
+    </div>
+
+    <div class="preview" x-show="imgUrl">
+        <img :src="imgUrl" alt="Pré-visualização">
+    </div>
+
+    <div class="pieces" x-show="pecas.length">
+        <template x-for="(p, idx) in pecas" :key="idx">
+            <div @click="toggleSelect(idx)" :class="{ selected: selecionadas.has(idx) }">
+                <img :src="p.url" :alt="p.name">
+                <div><input type="checkbox" x-model="selecionadas.has(idx)" /> {{ p.name }}</div>
+            </div>
+        </template>
+    </div>
+
+    <button type="button" @click="downloadZip()" x-show="selecionadas.size">Baixar selecionados</button>
+
+    <script type="module" src="/assets/split.js"></script>
+</body>
+</html>

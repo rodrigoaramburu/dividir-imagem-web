@@ -9,11 +9,13 @@ export default defineConfig({
     outDir: path.resolve(__dirname, 'public/assets'),
     emptyOutDir: true,
     rollupOptions: {
-      // entry is relative to root
-      input: path.resolve(__dirname, 'resources/js/app.js'),
+      // multiple entry points for main and splitter
+      input: {
+        main: path.resolve(__dirname, 'resources/js/app.js'),
+        split: path.resolve(__dirname, 'resources/js/split.js')
+      },
       output: {
-        // avoid hashed filenames so we can reference a fixed path
-        entryFileNames: 'app.js',
+        entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]'
       }

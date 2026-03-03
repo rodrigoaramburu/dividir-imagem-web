@@ -1,0 +1,2 @@
+name: create-php-alpine-projetct
+description: "Scaffold a new PHP project using Alpine Linux base and Docker environment."

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+</head>
+<body>
+    <h1>{{ message }}</h1>
+
+    <div x-data="{ open: false }">
+        <button @click="open = !open">Toggle</button>
+        <p x-show="open">This is an Alpine.js component!</p>
+    </div>
+
+    <script type="module" src="/assets/app.js"></script>
+</body>
+</html>

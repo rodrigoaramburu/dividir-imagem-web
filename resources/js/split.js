@@ -19,7 +19,6 @@ function data() {
             const reader = new FileReader();
             reader.onload = e => {
                 this.imgUrl = e.target.result;
-                // prepare canvas
                 if (!this.canvas) {
                     this.canvas = document.createElement('canvas');
                 }
@@ -29,10 +28,74 @@ function data() {
                     this.canvas.height = img.height;
                     const ctx = this.canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
+                    this.$nextTick(() => {
+                        this._syncOverlaySize();
+                        this.drawOverlay();
+                    });
                 };
                 img.src = this.imgUrl;
             };
             reader.readAsDataURL(file);
+        },
+
+        _syncOverlaySize() {
+            const overlayCanvas = this.$refs.overlayCanvas;
+            if (!overlayCanvas) return;
+            const img = this.$refs.previewImg;
+            if (!img) return;
+            const dpr = window.devicePixelRatio || 1;
+            overlayCanvas.width = img.offsetWidth * dpr;
+            overlayCanvas.height = img.offsetHeight * dpr;
+            const ctx = overlayCanvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+        },
+
+        drawOverlay() {
+            const overlayCanvas = this.$refs.overlayCanvas;
+            if (!overlayCanvas) return;
+            const img = this.$refs.previewImg;
+            if (!img) return;
+
+            const ctx = overlayCanvas.getContext('2d');
+            ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+            const w = img.offsetWidth;
+            const h = img.offsetHeight;
+
+            let rows = this.linhas;
+            let cols = this.colunas;
+            if (this.tipo === 'vertical') {
+                cols = 1;
+            } else if (this.tipo === 'horizontal') {
+                rows = 1;
+            }
+
+            ctx.strokeStyle = '#ff8c42';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+
+            const colWidth = w / cols;
+            for (let c = 1; c < cols; c++) {
+                const x = c * colWidth;
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, h);
+                ctx.stroke();
+            }
+
+            const rowHeight = h / rows;
+            for (let r = 1; r < rows; r++) {
+                const y = r * rowHeight;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(w, y);
+                ctx.stroke();
+            }
+        },
+
+        updateOverlay() {
+            this._syncOverlaySize();
+            this.drawOverlay();
         },
 
         generatePreview() {
@@ -101,5 +164,4 @@ function data() {
 window.splitComponent = data;
 Alpine.data('splitComponent', data);
 
-// initialize Alpine
 Alpine.start();

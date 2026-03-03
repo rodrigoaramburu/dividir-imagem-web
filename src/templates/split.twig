@@ -2,56 +2,300 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Divisor de Imagens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        .dropzone { border: 2px dashed #ccc; padding: 20px; text-align: center; cursor: pointer; }
-        .preview { max-width: 100%; margin-top: 10px; position: relative; }
-        .preview img{ width: 100%; }
-        .pieces { display: grid; gap: 10px; margin-top: 10px; }
-        .pieces img { max-width: 150px; border: 1px solid #999; }
-        .selected { outline: 3px solid #2196F3; }
+        :root {
+            --primary: #0d7377;
+            --primary-light: #14a085;
+            --accent: #ff8c42;
+            --accent-dark: #e67e22;
+            --bg: #f5f7f9;
+            --surface: #fff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e0e6ed;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 24px;
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        h1 {
+            margin: 0 0 24px 0;
+            font-size: 1.8rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .upload-section { margin-bottom: 24px; }
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--bg);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .dropzone:hover {
+            border-color: var(--primary);
+            background: rgba(13, 115, 119, 0.02);
+        }
+        .dropzone button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .dropzone button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            gap: 16px;
+            margin: 24px 0;
+        }
+        .control-group { display: flex; flex-direction: column; }
+        .control-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 6px;
+        }
+        .btn-type {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--surface);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.2s;
+        }
+        .btn-type:hover {
+            border-color: var(--primary);
+        }
+        .btn-type.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+        input[type="number"] {
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+        }
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(13, 115, 119, 0.1);
+        }
+        .preview-section {
+            margin: 24px 0;
+        }
+        .preview {
+            position: relative;
+            background: var(--bg);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .img-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .img-wrapper img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 6px;
+        }
+        canvas.overlay {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 6px;
+        }
+        .pieces-label {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 16px 0 12px 0;
+            font-size: 0.95rem;
+        }
+        .pieces {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .pieces.grid {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+        .pieces.horizontal {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        }
+        .piece {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+            background: var(--bg);
+            border: 2px solid var(--border-color);
+            aspect-ratio: 1;
+            transition: all 0.2s;
+        }
+        .piece img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.15s ease;
+        }
+        .piece:hover img {
+            filter: brightness(0.9);
+        }
+        .piece.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.25);
+        }
+        .piece.selected img {
+            filter: brightness(0.6);
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .btn-action {
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--primary-light);
+            transform: translateY(-1px);
+        }
+        .btn-download {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-download:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+        .btn-download:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        @media (max-width: 600px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+            .pieces.grid, .pieces.horizontal {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
     </style>
 </head>
-<body x-data="splitComponent()" @dragover.prevent @drop.prevent="onFileChange($event)">
-    <h1>Divisor de Imagens</h1>
+<body>
+<div class="container" x-data="splitComponent()" @dragover.prevent @drop.prevent="onFileChange($event)">
+    <h1>🖼️ Divisor de Imagens</h1>
 
-    <div class="dropzone" @click="$refs.fileInput.click()">
-        Arraste a imagem aqui ou <button type="button">Selecione um arquivo</button>
-        <input type="file" accept="image/*" class="hidden" x-ref="fileInput" @change="onFileChange" style="display:none;">
+    <div class="upload-section">
+        <div class="dropzone" @click="$refs.fileInput.click()">
+            <div>Arraste a imagem aqui ou</div>
+            <button type="button">Selecionar arquivo</button>
+            <input type="file" accept="image/*" x-ref="fileInput" @change="onFileChange" style="display:none;">
+        </div>
     </div>
 
     <div class="controls" x-show="imgUrl">
-        <label>Tipo:
-            <select x-model="tipo">
-                <option value="grade">Grade</option>
-                <option value="vertical">Vertical</option>
-                <option value="horizontal">Horizontal</option>
-            </select>
-        </label>
-        <label>Linhas:
-            <input type="number" min="1" x-model.number="linhas">
-        </label>
-        <label>Colunas:
-            <input type="number" min="1" x-model.number="colunas">
-        </label>
-        <button type="button" @click="generatePreview()">Gerar pré-visualização</button>
+        <div class="control-group">
+            <label class="control-label">Tipo de divisão:</label>
+            <div class="btn-group" role="tablist" aria-label="Tipo de divisão">
+                <button class="btn-type" :class="{ 'active': tipo === 'grade' }" @click="tipo='grade'">Grade</button>
+                <button class="btn-type" :class="{ 'active': tipo === 'vertical' }" @click="tipo='vertical'">Vertical</button>
+                <button class="btn-type" :class="{ 'active': tipo === 'horizontal' }" @click="tipo='horizontal'">Horizontal</button>
+            </div>
+        </div>
+
+        <div class="control-group" x-show="tipo !== 'horizontal'">
+            <label class="control-label">Linhas:</label>
+            <input type="number" min="1" max="20" x-model.number="linhas" @change="updateOverlay">
+        </div>
+
+        <div class="control-group" x-show="tipo !== 'vertical'">
+            <label class="control-label">Colunas:</label>
+            <input type="number" min="1" max="20" x-model.number="colunas" @change="updateOverlay">
+        </div>
     </div>
 
-    <div class="preview" x-show="imgUrl">
-        <img :src="imgUrl" alt="Pré-visualização">
+    <div class="preview-section" x-show="imgUrl">
+        <div class="preview">
+            <div class="img-wrapper">
+                <img x-ref="previewImg" :src="imgUrl" alt="Pré-visualização da imagem">
+                <canvas x-ref="overlayCanvas" class="overlay"></canvas>
+            </div>
+        </div>
     </div>
 
-    <div class="pieces" x-show="pecas.length">
+    <template x-if="pecas.length">
+        <div class="pieces-label">Selecione as peças para download:</div>
+    </template>
+
+    <div class="pieces" :class="tipo === 'horizontal' ? 'horizontal' : 'grid'" x-show="pecas.length">
         <template x-for="(p, idx) in pecas" :key="idx">
-            <div @click="toggleSelect(idx)" :class="{ selected: selecionadas.has(idx) }">
+            <div class="piece" @click="toggleSelect(idx)" :class="{ 'selected': selecionadas.has(idx) }" :title="p.name">
                 <img :src="p.url" :alt="p.name">
-                <div><input type="checkbox" x-model="selecionadas.has(idx)" /> {{ p.name }}</div>
             </div>
         </template>
     </div>
 
-    <button type="button" @click="downloadZip()" x-show="selecionadas.size">Baixar selecionados</button>
+    <div class="actions" x-show="imgUrl">
+        <button type="button" @click="generatePreview()" class="btn-action btn-primary">Gerar pré-visualização</button>
+        <button type="button" @click="downloadZip()" x-show="selecionadas.size" class="btn-action btn-download">⬇ Baixar selecionados</button>
+    </div>
+</div>
 
-    <script type="module" src="/assets/split.js"></script>
+<script type="module" src="/assets/split.js"></script>
 </body>
 </html>

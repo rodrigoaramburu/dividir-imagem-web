@@ -1,3 +1,4 @@
+import '../css/split.css';
 import Alpine from 'alpinejs';
 import JSZip from 'jszip';
 

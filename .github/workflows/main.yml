@@ -1,0 +1,32 @@
+on: push
+name: deploy site sorteador novo
+jobs: 
+  deploy-web:
+    name: Deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Get lastest code
+        uses: actions/checkout@v2
+
+      - name: composer install
+        uses: php-actions/composer@v6
+        with: 
+          dev: no
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies node
+        uses: bahmutov/npm-install@v1
+
+      - name: Build vite
+        run: npm run build
+
+      - name:  Sync files
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ftp.botecodigital.dev.br
+          username: dividir-imagem@botecodigital.dev.br
+          password: ${{ secrets.PASSWORD }}
+          timeout: 30000

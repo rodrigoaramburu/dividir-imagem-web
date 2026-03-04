@@ -50,4 +50,14 @@ This repository provides a minimal PHP application using Slim framework, Twig te
 - Add routes in `public/index.php` and controllers under `src/Controller`.
 - Extend Twig templates in `src/templates`.
 
+## SEO & Deployment
+
+To keep the site discoverable and performant:
+
+- The main template (`src/templates/split.twig`) already includes metadata, Open Graph, Twitter Cards, and schema.org markup.
+- Static files `public/robots.txt` and `public/sitemap.xml` control crawler behavior; update the sitemap when adding new pages.
+- Use the `npm run build` process to generate minified, hashed assets via Vite (see `vite.config.js`).
+- Configure your web server (Apache, Nginx, etc.) to add long-term `Cache-Control` headers for `/assets/*` since files are fingerprinted.
+- Run `npm run audit` (added by this change) to execute Lighthouse and check performance/SEO scores.
+
 Happy coding!

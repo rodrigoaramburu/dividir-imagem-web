@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://example.com/sitemap.xml
+Sitemap: https://dividir-imagem.botecodigital.dev.br/sitemap.xml
